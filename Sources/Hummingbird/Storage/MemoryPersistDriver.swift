@@ -12,10 +12,14 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if os(Linux)
-import Glibc
-#else
+#if canImport(Darwin)
 import Darwin.C
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#else
+#error("Unsupported runtime")
 #endif
 import NIOCore
 

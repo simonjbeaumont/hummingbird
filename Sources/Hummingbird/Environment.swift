@@ -12,10 +12,14 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if os(Linux)
-import Glibc
-#else
+#if canImport(Darwin)
 import Darwin.C
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#else
+#error("Unsupported runtime")
 #endif
 import NIO
 
@@ -105,7 +109,11 @@ public struct HBEnvironment: Sendable, Decodable, ExpressibleByDictionaryLiteral
     static func getEnvironment() -> [String: String] {
         var values: [String: String] = [:]
         let equalSign = Character("=")
+        #if canImport(Musl)
+        let envp = environ!
+        #else
         let envp = environ
+        #endif
         var idx = 0
 
         while let entry = envp.advanced(by: idx).pointee {
